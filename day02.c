@@ -21,6 +21,47 @@ Game* create_game(int r, int g, int b){
 	return game;
 }
 
+int get_game_power(char *game_info) {
+	char* revealed = malloc(sizeof(char) * BUFSIZ);
+	char* semicolon_pointer;
+	revealed = strtok_r(game_info, ";", &semicolon_pointer);
+	Game* current_game = create_game(0, 0, 0);
+	while (revealed != NULL){
+		char* turn = malloc(sizeof(char) * BUFSIZ);
+		char* comma_pointer;
+		int qty = 0;
+		char* color = malloc(sizeof(char) * BUFSIZ);
+		turn = strtok_r(revealed, ",", &comma_pointer);
+		while (turn != NULL){
+			sscanf(turn, "%d %s", &qty, color);
+			if (strcmp(color, "red") == 0){
+				if(current_game->red < qty){
+					current_game->red = qty;
+				}
+			}
+			if (strcmp(color, "green") == 0){
+				if(current_game->grn < qty){
+					current_game->grn = qty;
+				}
+			}
+			if (strcmp(color, "blue") == 0){
+				if(current_game->blu < qty){
+					current_game->blu = qty;
+				}
+			}
+			turn = strtok_r(NULL, ",", &comma_pointer);
+			if (turn != NULL){
+				turn = &turn[1];
+			}
+		}
+		revealed = strtok_r(NULL, ";", &semicolon_pointer);
+		if (revealed != NULL){
+			revealed = &revealed[1];
+		}
+	}
+	return current_game->red * current_game->grn * current_game->blu;
+}
+
 int is_turn_possible(Game* game){
 	if(game->red <= MAXRED && game->grn <= MAXGRN && game->blu <= MAXBLU){
 		return 0;
@@ -80,19 +121,21 @@ int main(int argc, char* argv){
 	char* game_info = malloc(sizeof(char) * BUFSIZ);
 	int game_counter = 1;
 	int sum1 = 0;
+	int sum2 = 0;
 
 	while(fgets(line, BUFSIZ, stdin) != NULL) {
 		line[strcspn(line, "\n")] = 0;
 		strtok_r(line, ":", &comma_pointer);
 		game_info = &strtok_r(NULL, ":", &comma_pointer)[1];
-		if(is_possible_game(game_info) == 0){
+		if(is_possible_game(strdup(game_info)) == 0){
 			sum1 += game_counter;
 		}
+			sum2 += get_game_power(game_info);
 		game_counter++;
 	}
 
 	printf("part1: %d\n", sum1);
-	printf("part2: %d\n", 0);
+	printf("part2: %d\n", sum2);
 
 	return 0;
 }
