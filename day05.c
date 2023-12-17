@@ -50,7 +50,7 @@ int main(int argc, char* argv){
 	int seed_count = 0;
 	int created = 0;
 	unsigned long part1 = (unsigned long) - 1; // max unsigned long
-	int sum2 = 0;
+	unsigned long part2 = (unsigned long) - 1; // max unsigned long
 
 	while(fgets(line, BUFSIZ, stdin) != NULL) {
 		line[strcspn(line, "\n")] = 0;
@@ -91,8 +91,26 @@ int main(int argc, char* argv){
 		}
 	}
 
+	for(int i = 0; i < seed_count; i += 2){
+		unsigned long start = *seeds[i], finish = *seeds[i] + *seeds[i + 1] - 1;
+		for(int count = 0; count < finish - start + 1; count++){
+			unsigned long seed_n = start + count;
+			for(int j = 0; j < section; j++){
+				for(int k = 0; k < almanac[j]->n_ranges; k++){
+					if(seed_n >= *almanac[j]->ranges[k][1] && seed_n <= *almanac[j]->ranges[k][1] + *almanac[j]->ranges[k][2]){
+						seed_n = *almanac[j]->ranges[k][0] + (seed_n - *almanac[j]->ranges[k][1]);
+						break;
+					}
+				}
+			}
+			if(seed_n < part2){
+				part2 = seed_n;
+			}
+		}
+	}
+
 	printf("part1: %lu\n", part1);
-	printf("part2: %d\n", sum2);
+	printf("part2: %lu\n", part2);
 
 	return 0;
 }
