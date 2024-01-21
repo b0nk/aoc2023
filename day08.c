@@ -11,6 +11,25 @@ typedef struct{
 	char* right;
 }Element;
 
+unsigned long gcd(unsigned long a, int b) {
+    if (b == 0){
+        return a;
+    }
+    return gcd(b, a % b);
+}
+
+unsigned long lcm(unsigned long a, int b){
+	return (a / gcd(a, b)) * b;
+}
+
+int find_element_index_p2(char* head, Element** elements, int* n_elements){
+	for(int i = 0; i < *n_elements; i++){
+		if(strcmp(elements[i]->head, head) == 0){
+			return i;
+		}
+	}
+}
+
 int find_element_index(char* head, Element** elements, int* n_elements){
 	if(strcmp(head, "ZZZ") == 0){
 		return -1;
@@ -33,12 +52,13 @@ int find_first_element_index(Element** elements, int* n_elements){
 int main(int argc, char** argv){
 
 	char line[BUFSIZ];
-	int part1 = 1, part2 = 0;
+	int part1 = 0;
+	unsigned long part2 = 1;
 
 	int limit = LIMIT_INCREASE;
 	Element** elements = malloc(sizeof(Element*) * limit);
 	int n_elements = 0;
-	char* instructions = strdup("");
+	char* instructions;
 	int read_instructions = 0;
 
 	while(fgets(line, BUFSIZ, stdin) != NULL) {
@@ -70,6 +90,7 @@ int main(int argc, char** argv){
 	
 	while(1){
 		int next_index;
+		part1++;
 		if(instructions[instruction_index] == 'L'){
 			next_index = find_element_index(current_element->left, elements, &n_elements);
 		}
@@ -80,15 +101,66 @@ int main(int argc, char** argv){
 			break;
 		}
 		current_element = elements[next_index];
-		part1++;
 		instruction_index++;
 		if(instruction_index == instruction_length){
 			instruction_index = 0;
 		}
 	}
-
+	
+	limit = LIMIT_INCREASE;
+	Element** elements_p2 = malloc(sizeof(Element*) * limit);
+	int n_elements_p2 = 0;
+	for(int i = 0; i < n_elements; i++){
+		if(elements[i]->head[2] == 'A'){
+			elements_p2[n_elements_p2] = malloc(sizeof(Element));
+			memcpy(elements_p2[n_elements_p2], elements[i], sizeof(Element));
+			n_elements_p2++;
+			if(n_elements_p2 == limit){
+				limit += LIMIT_INCREASE;
+				elements_p2 = realloc(elements_p2, sizeof(Element*) * limit);
+			}
+		}
+	}
+	
+	int cycles[n_elements_p2];
+	for(int i = 0; i < n_elements_p2; i++){
+		current_element = elements_p2[i];
+		int step_counter = 0;
+		char* first_z = strdup("");
+		while(1){
+			while(step_counter == 0 || current_element->head[2] != 'Z'){
+				int next_index;
+				step_counter++;
+				if(instructions[instruction_index] == 'L'){
+					next_index = find_element_index_p2(current_element->left, elements, &n_elements);
+				}
+				else{
+					next_index = find_element_index_p2(current_element->right, elements, &n_elements);
+				}
+				current_element = elements[next_index];
+				instruction_index++;
+				if(instruction_index == instruction_length){
+					instruction_index = 0;
+				}
+			}
+			cycles[i] = step_counter;
+			
+			if(strlen(first_z) == 0){
+				first_z = strdup(current_element->head);
+				step_counter = 0;
+			}
+			if(strcmp(current_element->head, first_z) == 0){
+				break;
+			}
+		}
+	}
+	
+	for(int i = 0; i < n_elements_p2; i++){
+		part2 = lcm(part2, cycles[i]);
+	}
+	
 	printf("part1: %d\n", part1);
-	printf("part2: %d\n", part2);
+	printf("part2: %lu\n", part2);
 
 	return 0;
 }
