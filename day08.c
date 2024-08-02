@@ -132,6 +132,7 @@ int main(){
 	for(int i = 0; i < n_elements_p2; i++){
 		current_element = elements_p2[i];
 		int step_counter = 0;
+		instruction_index = 0;
 		char* first_z = strdup("");
 		while(1){
 			while(step_counter == 0 || current_element->head[2] != 'Z'){
