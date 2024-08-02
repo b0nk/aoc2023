@@ -22,34 +22,38 @@ unsigned long lcm(unsigned long a, int b){
 	return (a / gcd(a, b)) * b;
 }
 
-int find_element_index_p2(char* head, Element** elements, int* n_elements){
+void find_element_index_p2(char* head, Element** elements, int* n_elements, int* next_index){
 	for(int i = 0; i < *n_elements; i++){
 		if(strcmp(elements[i]->head, head) == 0){
-			return i;
+			*next_index = i;
+			return;
 		}
 	}
 }
 
-int find_element_index(char* head, Element** elements, int* n_elements){
+void find_element_index(char* head, Element** elements, int* n_elements, int* next_index){
 	if(strcmp(head, "ZZZ") == 0){
-		return -1;
+		*next_index = -1;
+		return;
 	}
 	for(int i = 0; i < *n_elements; i++){
 		if(strcmp(elements[i]->head, head) == 0){
-			return i;
+			*next_index = i;
+			return;
 		}
 	}
 }
 
-int find_first_element_index(Element** elements, int* n_elements){
+void find_first_element_index(Element** elements, int* n_elements, int* first_element){
 	for(int i = 0; i < *n_elements; i++){
 		if(strcmp(elements[i]->head, "AAA") == 0){
-			return i;
+			*first_element = i;
+			return;
 		}
 	}
 }
 
-int main(int argc, char** argv){
+int main(){
 
 	char line[BUFSIZ];
 	int part1 = 0;
@@ -58,7 +62,7 @@ int main(int argc, char** argv){
 	int limit = LIMIT_INCREASE;
 	Element** elements = malloc(sizeof(Element*) * limit);
 	int n_elements = 0;
-	char* instructions;
+	char* instructions = {0};
 	int read_instructions = 0;
 
 	while(fgets(line, BUFSIZ, stdin) != NULL) {
@@ -86,16 +90,18 @@ int main(int argc, char** argv){
 	
 	int instruction_length = strlen(instructions);
 	int instruction_index = 0;
-	Element* current_element = elements[find_first_element_index(elements, &n_elements)];
+	int first_element;
+	find_first_element_index(elements, &n_elements, &first_element);
+	Element* current_element = elements[first_element];
 	
 	while(1){
-		int next_index;
+		int next_index = 0;
 		part1++;
 		if(instructions[instruction_index] == 'L'){
-			next_index = find_element_index(current_element->left, elements, &n_elements);
+			find_element_index(current_element->left, elements, &n_elements, &next_index);
 		}
 		else{
-			next_index = find_element_index(current_element->right, elements, &n_elements);
+			find_element_index(current_element->right, elements, &n_elements, &next_index);
 		}
 		if(next_index == -1){
 			break;
@@ -129,13 +135,13 @@ int main(int argc, char** argv){
 		char* first_z = strdup("");
 		while(1){
 			while(step_counter == 0 || current_element->head[2] != 'Z'){
-				int next_index;
+				int next_index = 0;
 				step_counter++;
 				if(instructions[instruction_index] == 'L'){
-					next_index = find_element_index_p2(current_element->left, elements, &n_elements);
+					find_element_index_p2(current_element->left, elements, &n_elements, &next_index);
 				}
 				else{
-					next_index = find_element_index_p2(current_element->right, elements, &n_elements);
+					find_element_index_p2(current_element->right, elements, &n_elements, &next_index);
 				}
 				current_element = elements[next_index];
 				instruction_index++;
